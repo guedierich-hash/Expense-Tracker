@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h4 class="mb-4">Dashboard</h4>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 text-center">
+            <div class="text-muted small">Total Income</div>
+            <div class="fs-4 fw-bold text-success">FCFA {{ income_total|floatformat:0 }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 text-center">
+            <div class="text-muted small">Total Expenses</div>
+            <div class="fs-4 fw-bold text-danger">FCFA {{ expense_total|floatformat:0 }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 text-center">
+            <div class="text-muted small">Balance</div>
+            <div class="fs-4 fw-bold {% if balance >= 0 %}text-primary{% else %}text-danger{% endif %}">
+                FCFA {{ balance|floatformat:0 }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0">Recent Transactions</h6>
+        <a href="{% url 'transaction_add' %}" class="btn btn-sm btn-primary">+ Add</a>
+    </div>
+    {% if transactions %}
+    <table class="table table-sm">
+        <thead>
+            <tr><th>Date</th><th>Title</th><th>Type</th><th>Amount</th></tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.date }}</td>
+                <td>{{ t.title }}</td>
+                <td>
+                    <span class="badge {% if t.transaction_type == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ t.get_transaction_type_display }}
+                    </span>
+                </td>
+                <td>FCFA {{ t.amount|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No transactions yet. <a href="{% url 'transaction_add' %}">Add one</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

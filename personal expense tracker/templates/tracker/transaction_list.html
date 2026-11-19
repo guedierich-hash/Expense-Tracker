@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Transactions{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>All Transactions</h4>
+    <a href="{% url 'transaction_add' %}" class="btn btn-primary btn-sm">+ Add Transaction</a>
+</div>
+
+{% if transactions %}
+<div class="card">
+    <table class="table table-hover mb-0">
+        <thead class="table-light">
+            <tr><th>Date</th><th>Title</th><th>Category</th><th>Type</th><th>Amount</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.date }}</td>
+                <td>{{ t.title }}</td>
+                <td>{{ t.category.name|default:"-" }}</td>
+                <td>
+                    <span class="badge {% if t.transaction_type == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ t.get_transaction_type_display }}
+                    </span>
+                </td>
+                <td>FCFA {{ t.amount|floatformat:0 }}</td>
+                <td>
+                    <a href="{% url 'transaction_delete' t.pk %}" class="text-danger small">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">No transactions yet.</p>
+{% endif %}
+{% endblock %}
