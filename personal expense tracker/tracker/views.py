@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.contrib import messages
-from .models import Transaction
-from .forms import RegisterForm, TransactionForm
+from .models import Transaction, Category
+from .forms import RegisterForm, TransactionForm, CategoryForm
 
 
 def register(request):
@@ -53,3 +53,34 @@ def transaction_add(request):
     else:
         form = TransactionForm(request.user)
     return render(request, 'tracker/transaction_form.html', {'form': form, 'title': 'Add Transaction'})
+
+
+@login_required
+def category_list(request):
+    categories = Category.objects.filter(user=request.user)
+    return render(request, 'tracker/category_list.html', {'categories': categories})
+
+
+@login_required
+def category_add(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.user = request.user
+            category.save()
+            messages.success(request, 'Category added successfully.')
+            return redirect('category_list')
+    else:
+        form = CategoryForm()
+    return render(request, 'tracker/category_form.html', {'form': form, 'title': 'Add Category'})
+
+
+@login_required
+def category_delete(request, pk):
+    category = get_object_or_404(Category, pk=pk, user=request.user)
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, 'Category deleted.')
+        return redirect('category_list')
+    return render(request, 'tracker/category_confirm_delete.html', {'category': category})
